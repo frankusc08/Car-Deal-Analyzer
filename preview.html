@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Car Deal Analyzer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+    }
+    button {
+      padding: 12px;
+      width: 100%;
+      background: black;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      background: #f4f4f4;
+    }
+    .good { color: green; font-weight: bold; }
+    .fair { color: orange; font-weight: bold; }
+    .bad { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h1>🚗 Car Deal Analyzer</h1>
+  <p>Find out if you're overpaying for your car deal.</p>
+
+  <input id="price" type="number" placeholder="Car price ($)">
+  <input id="down" type="number" placeholder="Down payment ($)">
+  <input id="rate" type="number" placeholder="Interest rate (%)">
+  <input id="term" type="number" placeholder="Loan term (months)">
+  <input id="fees" type="number" placeholder="Dealer fees ($)">
+
+  <button onclick="analyzeDeal()">Analyze Deal</button>
+
+  <div id="output" class="result"></div>
+
+  <script>
+    function analyzeDeal() {
+      const price = Number(document.getElementById("price").value);
+      const down = Number(document.getElementById("down").value);
+      const rate = Number(document.getElementById("rate").value);
+      const term = Number(document.getElementById("term").value);
+      const fees = Number(document.getElementById("fees").value);
+
+      const loan = price - down;
+      const r = rate / 100 / 12;
+
+      let monthly = 0;
+
+      if (r > 0) {
+        monthly = loan * (r * Math.pow(1 + r, term)) / (Math.pow(1 + r, term) - 1);
+      } else {
+        monthly = loan / term;
+      }
+
+      const totalPaid = monthly * term + fees;
+      const interestPaid = totalPaid - loan;
+
+      let score = 0;
+
+      if (rate > 7) score += 1;
+      if (fees > 1500) score += 1;
+      if (interestPaid > loan * 0.25) score += 1;
+
+      let verdict = "";
+      let className = "";
+
+      if (score === 0) {
+        verdict = "GOOD DEAL";
+        className = "good";
+      } else if (score === 1) {
+        verdict = "FAIR DEAL";
+        className = "fair";
+      } else {
+        verdict = "BAD DEAL";
+        className = "bad";
+      }
+
+      document.getElementById("output").innerHTML = `
+        <div class="${className}">
+          ${verdict}
+        </div>
+        <p><b>Monthly Payment:</b> $${monthly.toFixed(2)}</p>
+        <p><b>Total Paid:</b> $${totalPaid.toFixed(2)}</p>
+        <p><b>Interest Paid:</b> $${interestPaid.toFixed(2)}</p>
+        <hr>
+        <p><b>Loan Amount:</b> $${loan.toFixed(2)}</p>
+      `;
+    }
+  </script>
+
+</body>
+</html>
